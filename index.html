@@ -433,60 +433,53 @@ const COL={available:'#3b82f6',booked:'#ef4444',sold:'#22c55e'};
 const LBL={available:'Available',booked:'Reserved',sold:'Sold'};
 const n2=v=>v;
 
-// Google Sheets Integration (DISABLED - Enable when ready)
-const SHEET_URL = ''; // Add CSV URL here when ready
+// Google Sheets Integration via Apps Script
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyc9ebgCFNZQlJrLYiNjO23vYsNVDLGGePcdzBQzu1kpoOPNaxfjdbLERyYpV-4Rj0/exec';
 
-// Function to fetch data from Google Sheet
+// Fetch JSON data from Apps Script
 async function fetchSheetData() {
   try {
     const response = await fetch(SHEET_URL);
-    const csvText = await response.text();
-    return parseCSV(csvText);
+    const json = await response.json();
+    return json; // { "1": { status, description, ... }, "2": { ... }, ... }
   } catch (error) {
     console.error('Error fetching sheet data:', error);
     return null;
   }
 }
 
-// Parse CSV data
-function parseCSV(csv) {
-  const lines = csv.trim().split('\n');
-  const headers = lines[0].split(',');
-  const data = {};
-  
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',');
-    const plotId = parseInt(values[0]);
-    data[plotId] = {
-      status: values[1]?.trim().toLowerCase() || 'available',
-      description: values[2]?.trim() || 'Available for Sale'
-    };
-  }
-  return data;
-}
-
 // Update PLOTS array with Sheet data
 async function syncWithSheet() {
   const sheetData = await fetchSheetData();
   if (!sheetData) return;
-  
+
   PLOTS.forEach((plot, index) => {
-    if (sheetData[plot.id]) {
-      PLOTS[index].status = sheetData[plot.id].status;
-      PLOTS[index].description = sheetData[plot.id].description;
+    const row = sheetData[plot.id];
+    if (row) {
+      PLOTS[index].status = row.status || 'available';
+      PLOTS[index].description = row.description || 'Available for Sale';
     }
   });
-  
+
+  // Update counts
+  updateCounts();
+
   // Refresh the map if status is shown
   if (showStatus) {
-    toggleStatus();
-    toggleStatus();
+    const rects = svg.querySelectorAll('rect');
+    rects.forEach(r => {
+      const plotId = +r.dataset.id;
+      const p = PLOTS[plotId - 1];
+      const color = COL[p.status] || '#6b7280';
+      r.style.fill = color;
+      r.style.stroke = color;
+    });
   }
-  
-  console.log('Data synced from Google Sheet!');
+
+  console.log('✅ Data synced from Google Sheet!');
 }
 
-// Auto-sync every 30 seconds (optional)
+// Auto-sync every 30 seconds
 setInterval(syncWithSheet, 30000);
 
 // Initial sync on page load
