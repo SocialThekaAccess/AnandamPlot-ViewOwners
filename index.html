@@ -591,7 +591,7 @@ const tip=document.getElementById('tip');
 function hideTip(){tip.style.display='none';}
 svg.addEventListener('pointermove',e=>{const t=e.target.closest('rect');if(!t){hideTip();return;}
   const p=PLOTS[+t.dataset.id-1];
-  tip.innerHTML='<b>Plot '+p.id+'</b><br>'+n2(p.front)+' &times; '+n2(p.depth)+' m &middot; '+n2(p.super)+' sq.m<br><span class="dot" style="background:'+COL[p.status]+'"></span>'+LBL[p.status]+'<br>PLC: '+(p.plc==='Yes'?p.plcDetail:'N.A.');
+  tip.innerHTML='<b>Plot '+p.id+'</b><br>'+n2(p.front)+' &times; '+n2(p.depth)+' m &middot; '+n2(p.super)+' sq.yd<br><span class="dot" style="background:'+COL[p.status]+'"></span>'+LBL[p.status]+'<br>PLC: '+(p.plc==='Yes'?p.plcDetail:'N.A.');
   tip.style.display='block';
   const w=tip.offsetWidth,h=tip.offsetHeight;
   // Agar side panel khula hai, to tooltip uski left-edge se aage na jaaye
@@ -622,7 +622,7 @@ function open(p){
   }
 
   modal.innerHTML='<h2>Plot '+p.id+'</h2><div style="font-size:13px;color:var(--muted);margin-bottom:4px"><span class="dot" style="background:'+COL[p.status]+'"></span>'+LBL[p.status]+'</div>'
-  +'<div class="grid">'+cell('Front (m)',n2(p.front))+cell('Depth (m)',n2(p.depth))+cell('Carpet (sq.m)',n2(p.carpet))+cell('Super (sq.m)',n2(p.super))+cell('PLC',p.plc)+cell('PLC Detail',p.plcDetail)+'</div>'
+  +'<div class="grid">'+cell('Front (m)',n2(p.front))+cell('Depth (m)',n2(p.depth))+cell('Carpet (sq.yd)',n2(p.carpet))+cell('Super (sq.yd)',n2(p.super))+cell('PLC',p.plc)+cell('PLC Detail',p.plcDetail)+'</div>'
   +(extraInfo ? '<div class="grid" style="margin-top:0">'+extraInfo+'</div>' : '')
   +'<div class="row"><button class="btn" id="cl">Close</button><a class="btn p" style="text-align:center;text-decoration:none;line-height:1.4" href="tel:+919999999999">Contact Sales</a></div>';
   ov.classList.add('on');hideTip();
