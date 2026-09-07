@@ -465,12 +465,25 @@ const n2=v=>v;
 // Google Sheets Integration via Apps Script
 const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyc9ebgCFNZQlJrLYiNjO23vYsNVDLGGePcdzBQzu1kpoOPNaxfjdbLERyYpV-4Rj0/exec';
 
+// Dynamic labels from sheet headers
+let LABELS = {
+  dim1: 'Front (ft)',
+  dim2: 'Depth (ft)',
+  area1: 'Carpet (sq.yd)',
+  area2: 'Super (sq.yd)',
+  plc: 'PLC',
+  status: 'Status',
+  soldBy: 'Sold By',
+  customerName: 'Customer',
+  totalPrice: 'Price'
+};
+
 // Fetch JSON data from Apps Script
 async function fetchSheetData() {
   try {
     const response = await fetch(SHEET_URL);
     const json = await response.json();
-    return json; // { "1": { status, description, ... }, "2": { ... }, ... }
+    return json;
   } catch (error) {
     console.error('Error fetching sheet data:', error);
     return null;
@@ -482,8 +495,29 @@ async function syncWithSheet() {
   const sheetData = await fetchSheetData();
   if (!sheetData) return;
 
+  // Update dynamic labels from headers if available
+  if (sheetData.headers) {
+    const h = sheetData.headers;
+    // Parse dimension header e.g. "DIMENSIONS (ft)" → "ft"
+    const dimMatch = (h.dimensions || '').match(/\(([^)]+)\)/);
+    const dimUnit = dimMatch ? dimMatch[1] : 'ft';
+    // Parse area header e.g. "AREA ( sq yds / gaj )" → "sq.yd"
+    const areaMatch = (h.area || '').match(/sq\s*y[d|ds|yd]/i);
+    const areaUnit = areaMatch ? 'sq.yd' : 'sq.yd';
+
+    LABELS.dim1 = `Front (${dimUnit})`;
+    LABELS.dim2 = `Depth (${dimUnit})`;
+    LABELS.area1 = `Carpet (${areaUnit})`;
+    LABELS.area2 = `Super (${areaUnit})`;
+    LABELS.soldBy = h.soldBy || 'Sold By';
+    LABELS.customerName = h.customerName || 'Customer';
+    LABELS.totalPrice = h.totalPrice || 'Price';
+  }
+
+  const plots = sheetData.plots || sheetData;
+
   PLOTS.forEach((plot, index) => {
-    const row = sheetData[plot.id];
+    const row = plots[plot.id];
     if (row) {
       PLOTS[index].status = row.status || 'available';
       PLOTS[index].description = row.description || 'Available for Sale';
@@ -613,16 +647,16 @@ function open(p){
   // Build extra info rows based on status
   let extraInfo = '';
   if(p.status === 'sold'){
-    extraInfo += p.customerName ? cell('Buyer', p.customerName) : '';
-    extraInfo += p.totalPrice ? cell('Price', '₹' + Number(p.totalPrice).toLocaleString('en-IN')) : '';
-    extraInfo += p.soldBy ? cell('Sold By', p.soldBy) : '';
+    extraInfo += p.customerName ? cell(LABELS.customerName, p.customerName) : '';
+    extraInfo += p.totalPrice ? cell(LABELS.totalPrice, '₹' + Number(p.totalPrice).toLocaleString('en-IN')) : '';
+    extraInfo += p.soldBy ? cell(LABELS.soldBy, p.soldBy) : '';
   } else if(p.status === 'booked'){
-    extraInfo += p.soldBy ? cell('Reserved By', p.soldBy) : '';
-    extraInfo += p.customerName ? cell('Customer', p.customerName) : '';
+    extraInfo += p.soldBy ? cell(LABELS.soldBy, p.soldBy) : '';
+    extraInfo += p.customerName ? cell(LABELS.customerName, p.customerName) : '';
   }
 
   modal.innerHTML='<h2>Plot '+p.id+'</h2><div style="font-size:13px;color:var(--muted);margin-bottom:4px"><span class="dot" style="background:'+COL[p.status]+'"></span>'+LBL[p.status]+'</div>'
-  +'<div class="grid">'+cell('Front (ft)',n2(p.front))+cell('Depth (ft)',n2(p.depth))+cell('Carpet (sq.yd)',n2(p.carpet))+cell('Super (sq.yd)',n2(p.super))+cell('PLC',p.plc)+cell('PLC Detail',p.plcDetail)+'</div>'
+  +'<div class="grid">'+cell(LABELS.dim1,n2(p.front))+cell(LABELS.dim2,n2(p.depth))+cell(LABELS.area1,n2(p.carpet))+cell(LABELS.area2,n2(p.super))+cell('PLC',p.plc)+cell('PLC Detail',p.plcDetail)+'</div>'
   +(extraInfo ? '<div class="grid" style="margin-top:0">'+extraInfo+'</div>' : '')
   +'<div class="row"><button class="btn" id="cl">Close</button><a class="btn p" style="text-align:center;text-decoration:none;line-height:1.4" href="tel:+919999999999">Contact Sales</a></div>';
   ov.classList.add('on');hideTip();
