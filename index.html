@@ -128,7 +128,10 @@ header{display:none}
 .status-legend-float{display:none!important}
 #world img{filter:contrast(1.15) saturate(1.1)}
 #world::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.3) 0%,transparent 15%,transparent 85%,rgba(0,0,0,0.3) 100%);pointer-events:none;z-index:1}
-svg{z-index:2}}
+svg{z-index:2}
+#compass{bottom:60px!important;right:8px!important;top:unset!important;width:45px!important;height:45px!important;opacity:0.9!important}
+#compass svg{width:36px!important;height:36px!important}
+#compassDegree{font-size:7px!important;bottom:-14px!important}}
 @media(min-width:641px){header{display:none}
 .floating-controls{display:flex!important;left:20px;bottom:20px}
 #stage{padding-bottom:0}}
@@ -181,32 +184,20 @@ svg{z-index:2}}
 </header>
 
 <!-- Compass -->
-<div id="compass" style="position:fixed;top:16px;right:16px;z-index:200;width:64px;height:64px;cursor:default;user-select:none;">
-  <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
-    <!-- Outer circle -->
-    <circle cx="32" cy="32" r="30" fill="rgba(15,15,18,0.92)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
-    <!-- Tick marks -->
-    <g stroke="rgba(255,255,255,0.25)" stroke-width="1">
-      <line x1="32" y1="4" x2="32" y2="10"/>
-      <line x1="32" y1="54" x2="32" y2="60"/>
-      <line x1="4" y1="32" x2="10" y2="32"/>
-      <line x1="54" y1="32" x2="60" y2="32"/>
-    </g>
-    <!-- North arrow (red) -->
-    <polygon points="32,6 36,32 32,28 28,32" fill="#ef4444"/>
-    <!-- South arrow (white) -->
-    <polygon points="32,58 36,32 32,36 28,32" fill="rgba(255,255,255,0.7)"/>
-    <!-- Center dot -->
-    <circle cx="32" cy="32" r="3" fill="white"/>
-    <!-- N label -->
-    <text x="32" y="20" text-anchor="middle" font-size="8" font-weight="700" fill="#ef4444" font-family="sans-serif">N</text>
-    <!-- S label -->
-    <text x="32" y="56" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="sans-serif">S</text>
-    <!-- W label -->
-    <text x="9" y="35" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="sans-serif">W</text>
-    <!-- E label -->
-    <text x="55" y="35" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="sans-serif">E</text>
+<div id="compass" style="position:fixed;top:20px;right:20px;width:80px;height:80px;background:rgba(30,30,34,0.95);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:200;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
+  <svg id="compassNeedle" width="70" height="70" viewBox="0 0 100 100" style="transition:transform 0.3s ease;">
+    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(56,189,248,0.3)" stroke-width="1"/>
+    <circle cx="50" cy="50" r="35" fill="none" stroke="rgba(56,189,248,0.2)" stroke-width="0.5"/>
+    <circle cx="50" cy="50" r="25" fill="none" stroke="rgba(56,189,248,0.15)" stroke-width="0.5"/>
+    <polygon points="50,15 55,45 50,40 45,45" fill="#ef4444" stroke="#fff" stroke-width="0.5"/>
+    <polygon points="50,85 55,55 50,60 45,55" fill="#e5e7eb" stroke="#fff" stroke-width="0.5"/>
+    <circle cx="50" cy="50" r="4" fill="#38bdf8" stroke="#fff" stroke-width="1"/>
+    <text x="50" y="12" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="bold">N</text>
+    <text x="50" y="95" text-anchor="middle" fill="#e5e7eb" font-size="10">S</text>
+    <text x="92" y="54" text-anchor="middle" fill="#e5e7eb" font-size="10">E</text>
+    <text x="8" y="54" text-anchor="middle" fill="#e5e7eb" font-size="10">W</text>
   </svg>
+  <div id="compassDegree" style="position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--accent);font-weight:600;white-space:nowrap;">0°</div>
 </div>
 
 <!-- Floating Controls for Desktop -->
@@ -778,6 +769,47 @@ function toggleStatus(){
 }
 statusToggle.addEventListener('click',toggleStatus);
 statusToggleFloat.addEventListener('click',toggleStatus);
+
+/* Compass - Device Orientation Based */
+const compassNeedle = document.getElementById('compassNeedle');
+const compassDegree = document.getElementById('compassDegree');
+
+function updateCompass(heading) {
+  const h = Math.round(heading);
+  compassNeedle.style.transform = `rotate(${heading}deg)`;
+  compassDegree.textContent = h + '°';
+}
+
+if (window.DeviceOrientationEvent) {
+  window.addEventListener('deviceorientationabsolute', (e) => {
+    if (e.absolute && e.alpha !== null) updateCompass(360 - e.alpha);
+  }, true);
+  window.addEventListener('deviceorientation', (e) => {
+    if (e.alpha !== null && e.webkitCompassHeading === undefined) updateCompass(360 - e.alpha);
+    if (e.webkitCompassHeading !== undefined) updateCompass(e.webkitCompassHeading);
+  }, true);
+  // iOS permission
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    document.getElementById('compass').style.cursor = 'pointer';
+    document.getElementById('compass').addEventListener('click', () => {
+      DeviceOrientationEvent.requestPermission().then(state => {
+        if (state === 'granted') console.log('Compass permission granted');
+      }).catch(console.error);
+    });
+  }
+}
+
+// Desktop: click to rotate manually
+if (window.innerWidth > 640) {
+  let manualRot = 0;
+  const compassEl = document.getElementById('compass');
+  compassEl.style.cursor = 'pointer';
+  compassEl.title = 'Click to rotate';
+  compassEl.addEventListener('click', () => {
+    manualRot = (manualRot + 45) % 360;
+    updateCompass(manualRot);
+  });
+}
 </script>
 </body>
 </html>
