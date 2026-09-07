@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
-<title>Anandam Plot View</title>
+<title>Annadam Exotica</title>
 <meta name="description" content="Explore the township site plan. Click any plot for front, depth, carpet area, super area, PLC and status."/>
 <style>
 :root{--bg:#0b0b0c;--panel:#141416;--line:#2a2a2e;--txt:#f2f2f3;--muted:#9a9aa2;
@@ -129,13 +128,7 @@ header{display:none}
 .status-legend-float{display:none!important}
 #world img{filter:contrast(1.15) saturate(1.1)}
 #world::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,rgba(0,0,0,0.3) 0%,transparent 15%,transparent 85%,rgba(0,0,0,0.3) 100%);pointer-events:none;z-index:1}
-svg{z-index:2}
-#compass{bottom:60px!important;right:8px!important;left:unset!important;transform:none!important;top:unset!important;width:45px!important;height:45px!important;opacity:0.9!important}
-#compass svg{width:36px!important;height:36px!important}
-#compassDegree{font-size:7px!important;bottom:-14px!important}
-#measureInfo{left:8px!important;bottom:50px!important;font-size:10px!important;padding:8px 12px!important}
-#measureInfo div:first-child{font-size:9px!important}
-#measureDistance{font-size:14px!important}}
+svg{z-index:2}}
 @media(min-width:641px){header{display:none}
 .floating-controls{display:flex!important;left:20px;bottom:20px}
 #stage{padding-bottom:0}}
@@ -156,7 +149,7 @@ svg{z-index:2}
 <body>
 <header>
   <div class="header-top">
-    <h1>Anandam Plot View <span style="font-size:11px;color:var(--muted);font-weight:400">| Total: 200 Plots</span></h1>
+    <h1>Anandam Exotica <span style="font-size:11px;color:var(--muted);font-weight:400">| Total: 200 Plots</span></h1>
     <div class="legend">
       <span><i style="background:#3b82f6"></i>Available</span>
       <span><i style="background:#ef4444"></i>Reserved</span>
@@ -187,6 +180,35 @@ svg{z-index:2}
   </div>
 </header>
 
+<!-- Compass -->
+<div id="compass" style="position:fixed;top:16px;right:16px;z-index:200;width:64px;height:64px;cursor:default;user-select:none;">
+  <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+    <!-- Outer circle -->
+    <circle cx="32" cy="32" r="30" fill="rgba(15,15,18,0.92)" stroke="rgba(255,255,255,0.15)" stroke-width="1.5"/>
+    <!-- Tick marks -->
+    <g stroke="rgba(255,255,255,0.25)" stroke-width="1">
+      <line x1="32" y1="4" x2="32" y2="10"/>
+      <line x1="32" y1="54" x2="32" y2="60"/>
+      <line x1="4" y1="32" x2="10" y2="32"/>
+      <line x1="54" y1="32" x2="60" y2="32"/>
+    </g>
+    <!-- North arrow (red) -->
+    <polygon points="32,6 36,32 32,28 28,32" fill="#ef4444"/>
+    <!-- South arrow (white) -->
+    <polygon points="32,58 36,32 32,36 28,32" fill="rgba(255,255,255,0.7)"/>
+    <!-- Center dot -->
+    <circle cx="32" cy="32" r="3" fill="white"/>
+    <!-- N label -->
+    <text x="32" y="20" text-anchor="middle" font-size="8" font-weight="700" fill="#ef4444" font-family="sans-serif">N</text>
+    <!-- S label -->
+    <text x="32" y="56" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="sans-serif">S</text>
+    <!-- W label -->
+    <text x="9" y="35" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="sans-serif">W</text>
+    <!-- E label -->
+    <text x="55" y="35" text-anchor="middle" font-size="7" fill="rgba(255,255,255,0.6)" font-family="sans-serif">E</text>
+  </svg>
+</div>
+
 <!-- Floating Controls for Desktop -->
 <div class="floating-controls">
   <div style="background:rgba(30,30,34,0.95);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:8px 14px;box-shadow:0 4px 20px rgba(0,0,0,0.5);margin-bottom:8px;text-align:center;font-size:11px;color:var(--txt);font-weight:500;width:130px;flex-shrink:0;">
@@ -208,40 +230,15 @@ svg{z-index:2}
         <span><i style="background:#22c55e"></i>Sold</span>
       </div>
     </div>
-    <button class="floating-btn" id="measureBtn" title="Measure Distance">📏</button>
     <button class="floating-btn" id="zinFloat" title="Zoom in">+</button>
     <button class="floating-btn" id="zoutFloat" title="Zoom out">&minus;</button>
     <button class="floating-btn" id="zresFloat" title="Reset">&#8635;</button>
   </div>
 </div>
 
-<!-- Compass -->
-<div id="compass" style="position:fixed;top:20px;right:20px;width:80px;height:80px;background:rgba(30,30,34,0.95);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.5);">
-  <svg id="compassNeedle" width="70" height="70" viewBox="0 0 100 100" style="transition:transform 0.3s ease;">
-    <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(56,189,248,0.3)" stroke-width="1"/>
-    <circle cx="50" cy="50" r="35" fill="none" stroke="rgba(56,189,248,0.2)" stroke-width="0.5"/>
-    <circle cx="50" cy="50" r="25" fill="none" stroke="rgba(56,189,248,0.15)" stroke-width="0.5"/>
-    <polygon points="50,15 55,45 50,40 45,45" fill="#ef4444" stroke="#fff" stroke-width="0.5"/>
-    <polygon points="50,85 55,55 50,60 45,55" fill="#e5e7eb" stroke="#fff" stroke-width="0.5"/>
-    <circle cx="50" cy="50" r="4" fill="#38bdf8" stroke="#fff" stroke-width="1"/>
-    <text x="50" y="12" text-anchor="middle" fill="#ef4444" font-size="12" font-weight="bold">N</text>
-    <text x="50" y="95" text-anchor="middle" fill="#e5e7eb" font-size="10">S</text>
-    <text x="92" y="54" text-anchor="middle" fill="#e5e7eb" font-size="10">E</text>
-    <text x="8" y="54" text-anchor="middle" fill="#e5e7eb" font-size="10">W</text>
-  </svg>
-  <div id="compassDegree" style="position:absolute;bottom:-25px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--accent);font-weight:600;white-space:nowrap;">0°</div>
-</div>
-
-<!-- Measurement Tool Info -->
-<div id="measureInfo" style="position:fixed;bottom:80px;left:20px;background:rgba(30,30,34,0.95);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:100;display:none;">
-  <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Distance</div>
-  <div id="measureDistance" style="font-size:16px;font-weight:600;color:var(--accent);">0 m</div>
-  <div style="font-size:9px;color:var(--muted);margin-top:2px;">Click two points to measure</div>
-</div>
-
 <!-- Mobile Title Bar -->
 <div class="mobile-title">
-  <h1 style="font-size:14px;margin:0 0 4px 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">Anandam Plot View <span style="font-size:10px;color:var(--muted);font-weight:400">(200)</span></h1>
+  <h1 style="font-size:14px;margin:0 0 4px 0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">Anandam Exotica <span style="font-size:10px;color:var(--muted);font-weight:400">(200)</span></h1>
   <div class="legend" id="mobileLegendStatic" style="font-size:9px;gap:8px;display:flex;flex-wrap:nowrap;">
     <span style="display:inline-flex;align-items:center;gap:3px;white-space:nowrap;"><i style="background:#3b82f6;width:7px;height:7px;display:inline-block;border-radius:50%;"></i>Avail <span id="mobileAvailCount" style="font-weight:600;">0</span></span>
     <span style="display:inline-flex;align-items:center;gap:3px;white-space:nowrap;"><i style="background:#ef4444;width:7px;height:7px;display:inline-block;border-radius:50%;"></i>Res <span id="mobileReservedCount" style="font-weight:600;">0</span></span>
@@ -465,60 +462,56 @@ const COL={available:'#3b82f6',booked:'#ef4444',sold:'#22c55e'};
 const LBL={available:'Available',booked:'Reserved',sold:'Sold'};
 const n2=v=>v;
 
-// Google Sheets Integration (DISABLED - Enable when ready)
-const SHEET_URL = ''; // Add CSV URL here when ready
+// Google Sheets Integration via Apps Script
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyc9ebgCFNZQlJrLYiNjO23vYsNVDLGGePcdzBQzu1kpoOPNaxfjdbLERyYpV-4Rj0/exec';
 
-// Function to fetch data from Google Sheet
+// Fetch JSON data from Apps Script
 async function fetchSheetData() {
   try {
     const response = await fetch(SHEET_URL);
-    const csvText = await response.text();
-    return parseCSV(csvText);
+    const json = await response.json();
+    return json; // { "1": { status, description, ... }, "2": { ... }, ... }
   } catch (error) {
     console.error('Error fetching sheet data:', error);
     return null;
   }
 }
 
-// Parse CSV data
-function parseCSV(csv) {
-  const lines = csv.trim().split('\n');
-  const headers = lines[0].split(',');
-  const data = {};
- 
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',');
-    const plotId = parseInt(values[0]);
-    data[plotId] = {
-      status: values[1]?.trim().toLowerCase() || 'available',
-      description: values[2]?.trim() || 'Available for Sale'
-    };
-  }
-  return data;
-}
-
 // Update PLOTS array with Sheet data
 async function syncWithSheet() {
   const sheetData = await fetchSheetData();
   if (!sheetData) return;
- 
+
   PLOTS.forEach((plot, index) => {
-    if (sheetData[plot.id]) {
-      PLOTS[index].status = sheetData[plot.id].status;
-      PLOTS[index].description = sheetData[plot.id].description;
+    const row = sheetData[plot.id];
+    if (row) {
+      PLOTS[index].status = row.status || 'available';
+      PLOTS[index].description = row.description || 'Available for Sale';
+      PLOTS[index].customerName = row.customerName || '';
+      PLOTS[index].soldBy = row.soldBy || '';
+      PLOTS[index].totalPrice = row.totalPrice || '';
     }
   });
- 
+
+  // Update counts
+  updateCounts();
+
   // Refresh the map if status is shown
   if (showStatus) {
-    toggleStatus();
-    toggleStatus();
+    const rects = svg.querySelectorAll('rect');
+    rects.forEach(r => {
+      const plotId = +r.dataset.id;
+      const p = PLOTS[plotId - 1];
+      const color = COL[p.status] || '#6b7280';
+      r.style.fill = color;
+      r.style.stroke = color;
+    });
   }
- 
-  console.log('Data synced from Google Sheet!');
+
+  console.log('✅ Data synced from Google Sheet!');
 }
 
-// Auto-sync every 30 seconds (optional)
+// Auto-sync every 30 seconds
 setInterval(syncWithSheet, 30000);
 
 // Initial sync on page load
@@ -532,12 +525,12 @@ function updateCounts() {
     else if(p.status === 'booked') bookedCount++;
     else if(p.status === 'sold') soldCount++;
   });
- 
+  
   // Update mobile legend counts
   const mobileAvail = document.getElementById('mobileAvailCount');
   const mobileReserved = document.getElementById('mobileReservedCount');
   const mobileSold = document.getElementById('mobileSoldCount');
- 
+  
   if(mobileAvail) mobileAvail.textContent = availableCount;
   if(mobileReserved) mobileReserved.textContent = bookedCount;
   if(mobileSold) mobileSold.textContent = soldCount;
@@ -598,9 +591,7 @@ const tip=document.getElementById('tip');
 function hideTip(){tip.style.display='none';}
 svg.addEventListener('pointermove',e=>{const t=e.target.closest('rect');if(!t){hideTip();return;}
   const p=PLOTS[+t.dataset.id-1];
-  const carpetYd = (p.carpet * 1.19599).toFixed(2);
-  const superYd = (p.super * 1.19599).toFixed(2);
-  tip.innerHTML='<b>Plot '+p.id+'</b><br>'+n2(p.front)+' &times; '+n2(p.depth)+' m &middot; '+superYd+' sq.yd<br><span class="dot" style="background:'+COL[p.status]+'"></span>'+LBL[p.status]+'<br>PLC: '+(p.plc==='Yes'?p.plcDetail:'N.A.');
+  tip.innerHTML='<b>Plot '+p.id+'</b><br>'+n2(p.front)+' &times; '+n2(p.depth)+' m &middot; '+n2(p.super)+' sq.m<br><span class="dot" style="background:'+COL[p.status]+'"></span>'+LBL[p.status]+'<br>PLC: '+(p.plc==='Yes'?p.plcDetail:'N.A.');
   tip.style.display='block';
   const w=tip.offsetWidth,h=tip.offsetHeight;
   // Agar side panel khula hai, to tooltip uski left-edge se aage na jaaye
@@ -619,11 +610,20 @@ const ov=document.getElementById('ov'),modal=document.getElementById('modal');
 svg.addEventListener('click',e=>{const t=e.target.closest('rect');if(!t||moved)return;open(PLOTS[+t.dataset.id-1]);});
 function cell(l,v){return '<div class="cell"><span>'+l+'</span><strong>'+v+'</strong></div>';}
 function open(p){
-  const carpetYd = (p.carpet * 1.19599).toFixed(2);
-  const superYd = (p.super * 1.19599).toFixed(2);
-  modal.innerHTML='<h2>Plot '+p.id+'</h2><div style="font-size:13px;color:var(--muted)"><span class="dot" style="background:'+COL[p.status]+'"></span>'+LBL[p.status]+'</div>'
-  +'<div class="grid">'+cell('Front (m)',n2(p.front))+cell('Depth (m)',n2(p.depth))+cell('Carpet (sq.yd)',carpetYd)+cell('Super (sq.yd)',superYd)+cell('PLC',p.plc)+cell('PLC Detail',p.plcDetail)+'</div>'
-  +'<p class="desc">'+p.description+'</p>'
+  // Build extra info rows based on status
+  let extraInfo = '';
+  if(p.status === 'sold'){
+    extraInfo += p.customerName ? cell('Buyer', p.customerName) : '';
+    extraInfo += p.totalPrice ? cell('Price', '₹' + Number(p.totalPrice).toLocaleString('en-IN')) : '';
+    extraInfo += p.soldBy ? cell('Sold By', p.soldBy) : '';
+  } else if(p.status === 'booked'){
+    extraInfo += p.soldBy ? cell('Reserved By', p.soldBy) : '';
+    extraInfo += p.customerName ? cell('Customer', p.customerName) : '';
+  }
+
+  modal.innerHTML='<h2>Plot '+p.id+'</h2><div style="font-size:13px;color:var(--muted);margin-bottom:4px"><span class="dot" style="background:'+COL[p.status]+'"></span>'+LBL[p.status]+'</div>'
+  +'<div class="grid">'+cell('Front (m)',n2(p.front))+cell('Depth (m)',n2(p.depth))+cell('Carpet (sq.m)',n2(p.carpet))+cell('Super (sq.m)',n2(p.super))+cell('PLC',p.plc)+cell('PLC Detail',p.plcDetail)+'</div>'
+  +(extraInfo ? '<div class="grid" style="margin-top:0">'+extraInfo+'</div>' : '')
   +'<div class="row"><button class="btn" id="cl">Close</button><a class="btn p" style="text-align:center;text-decoration:none;line-height:1.4" href="tel:+919999999999">Contact Sales</a></div>';
   ov.classList.add('on');hideTip();
   document.getElementById('cl').onclick=close_;
@@ -698,7 +698,7 @@ function toggleStatus(){
   statusToggleFloat.classList.toggle('active');
   statusLegend.classList.toggle('visible');
   statusLegendFloat.classList.toggle('visible');
- 
+  
   // Calculate counts
   let availableCount = 0, bookedCount = 0, soldCount = 0;
   PLOTS.forEach(p => {
@@ -706,7 +706,7 @@ function toggleStatus(){
     else if(p.status === 'booked') bookedCount++;
     else if(p.status === 'sold') soldCount++;
   });
- 
+  
   // Update legends with counts
   statusLegend.innerHTML = `
     <span><i style="background:#3b82f6"></i>Available (${availableCount})</span>
@@ -718,7 +718,7 @@ function toggleStatus(){
     <span><i style="background:#ef4444"></i>Reserved (${bookedCount})</span>
     <span><i style="background:#22c55e"></i>Sold (${soldCount})</span>
   `;
- 
+  
   console.log('Toggle:', showStatus);
   const rects=svg.querySelectorAll('rect');
   console.log('Plots Found:', rects.length);
@@ -744,181 +744,6 @@ function toggleStatus(){
 }
 statusToggle.addEventListener('click',toggleStatus);
 statusToggleFloat.addEventListener('click',toggleStatus);
-
-/* Distance Measurement Tool */
-const measureBtn = document.getElementById('measureBtn');
-const measureInfo = document.getElementById('measureInfo');
-const measureDistance = document.getElementById('measureDistance');
-let measureMode = false;
-let measurePoints = [];
-let measureLine = null;
-
-// Pixel to meter ratio (approximate - you may need to adjust based on your map scale)
-// Assuming the map width of 907px represents approximately 200 meters
-const PIXEL_TO_METER = 200 / 907;
-
-measureBtn.addEventListener('click', () => {
-  measureMode = !measureMode;
-  measureBtn.classList.toggle('active');
- 
-  if (measureMode) {
-    measureInfo.style.display = 'block';
-    stage.style.cursor = 'crosshair';
-  } else {
-    measureInfo.style.display = 'none';
-    stage.style.cursor = 'grab';
-    measurePoints = [];
-    if (measureLine) {
-      measureLine.remove();
-      measureLine = null;
-    }
-    measureDistance.textContent = '0 m';
-  }
-});
-
-stage.addEventListener('click', (e) => {
-  if (!measureMode) return;
- 
-  // Get click position relative to the world (considering zoom and pan)
-  const rect = stage.getBoundingClientRect();
-  const x = (e.clientX - rect.left - ox) / z;
-  const y = (e.clientY - rect.top - oy) / z;
- 
-  measurePoints.push({ x, y });
- 
-  if (measurePoints.length === 1) {
-    // First point - create marker
-    if (!measureLine) {
-      measureLine = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      svg.appendChild(measureLine);
-    }
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', x);
-    circle.setAttribute('cy', y);
-    circle.setAttribute('r', '5');
-    circle.setAttribute('fill', '#38bdf8');
-    circle.setAttribute('stroke', '#fff');
-    circle.setAttribute('stroke-width', '2');
-    measureLine.appendChild(circle);
-  } else if (measurePoints.length === 2) {
-    // Second point - draw line and calculate distance
-    const p1 = measurePoints[0];
-    const p2 = measurePoints[1];
-   
-    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    line.setAttribute('x1', p1.x);
-    line.setAttribute('y1', p1.y);
-    line.setAttribute('x2', p2.x);
-    line.setAttribute('y2', p2.y);
-    line.setAttribute('stroke', '#38bdf8');
-    line.setAttribute('stroke-width', '3');
-    line.setAttribute('stroke-dasharray', '5,5');
-    measureLine.appendChild(line);
-   
-    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('cx', p2.x);
-    circle.setAttribute('cy', p2.y);
-    circle.setAttribute('r', '5');
-    circle.setAttribute('fill', '#38bdf8');
-    circle.setAttribute('stroke', '#fff');
-    circle.setAttribute('stroke-width', '2');
-    measureLine.appendChild(circle);
-   
-    // Calculate distance in pixels
-    const dx = p2.x - p1.x;
-    const dy = p2.y - p1.y;
-    const distancePixels = Math.sqrt(dx * dx + dy * dy);
-   
-    // Convert to meters
-    const distanceMeters = distancePixels * PIXEL_TO_METER;
-   
-    measureDistance.textContent = distanceMeters.toFixed(2) + ' m';
-   
-    // Reset for next measurement
-    measurePoints = [];
-  }
-});
-
-/* Working Compass - Device Orientation Based */
-const compassNeedle = document.getElementById('compassNeedle');
-const compassDegree = document.getElementById('compassDegree');
-let currentHeading = 0;
-
-// Function to update compass rotation
-function updateCompass(heading) {
-  currentHeading = Math.round(heading);
-  compassNeedle.style.transform = `rotate(${heading}deg)`;
-  compassDegree.textContent = currentHeading + '°';
-}
-
-// Check if device supports orientation
-if (window.DeviceOrientationEvent) {
-  // For mobile devices with magnetometer
-  window.addEventListener('deviceorientationabsolute', (event) => {
-    if (event.absolute && event.alpha !== null) {
-      // alpha gives the compass heading (0-360 degrees)
-      // North is 0, East is 90, South is 180, West is 270
-      const heading = 360 - event.alpha; // Reverse because we rotate the needle
-      updateCompass(heading);
-    }
-  }, true);
-
-  // Fallback for older devices
-  window.addEventListener('deviceorientation', (event) => {
-    if (event.alpha !== null && event.webkitCompassHeading === undefined) {
-      const heading = 360 - event.alpha;
-      updateCompass(heading);
-    }
-  }, true);
-
-  // iOS Safari specific
-  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-    // Add click event to request permission on iOS 13+
-    document.getElementById('compass').addEventListener('click', () => {
-      DeviceOrientationEvent.requestPermission()
-        .then(permissionState => {
-          if (permissionState === 'granted') {
-            console.log('Compass permission granted');
-          }
-        })
-        .catch(console.error);
-    });
-  }
-}
-
-// Fallback: Manual compass using geolocation heading (when moving)
-if ('geolocation' in navigator) {
-  navigator.geolocation.watchPosition(
-    (position) => {
-      if (position.coords.heading !== null) {
-        updateCompass(position.coords.heading);
-      }
-    },
-    (error) => {
-      console.log('Geolocation error:', error);
-    },
-    {
-      enableHighAccuracy: true,
-      maximumAge: 0
-    }
-  );
-}
-
-// Desktop fallback: Interactive compass (click to rotate manually)
-let manualRotation = 0;
-if (!window.DeviceOrientationEvent && window.innerWidth > 640) {
-  document.getElementById('compass').addEventListener('click', () => {
-    manualRotation = (manualRotation + 45) % 360;
-    updateCompass(manualRotation);
-  });
- 
-  // Add hover tooltip for desktop
-  const compassEl = document.getElementById('compass');
-  compassEl.title = 'Click to rotate compass manually';
-  compassEl.style.cursor = 'pointer';
-}
-
 </script>
 </body>
 </html>
-
